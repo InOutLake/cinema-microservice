@@ -55,6 +55,20 @@ const repository = (container) => {
     })
   }
 
+  const getAllOrders = () => {
+    return new Promise((resolve, reject) => {
+        db.collection('booking')
+          .find({})
+          .toArray((err, orders) => {
+              if (err) {
+                  return reject(new Error('An error occurred retrieving orders, err: ' + err));
+              }
+              resolve(orders);
+          });
+    });
+};
+
+
   const disconnect = () => {
     db.close()
   }
@@ -62,6 +76,7 @@ const repository = (container) => {
   return Object.create({
     makeBooking,
     getOrderById,
+    getAllOrders,
     generateTicket,
     disconnect
   })

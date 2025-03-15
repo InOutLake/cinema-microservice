@@ -1,0 +1,44 @@
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: payment-mongo
+  spec:
+    serviceName: payment-mongo
+    replicas: 3
+    selector:
+      matchLabels:
+        app: payment-mongo
+    template:
+      metadata:
+        labels:
+          app: payment-mongo
+      spec:
+        containers:
+        - name: payment-mongo
+          image: mongo:6.0
+          command: ["mongod", "--replSet", "rs4", "--bind_ip_all"]
+          env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: payment-mongo-secret
+                key: username
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: payment-mongo-secret
+                key: password
+          ports:
+          - containerPort: 27017
+          volumeMounts:
+          - name: payment-mongo-persistent-storage
+            mountPath: /data/db
+    volumeClaimTemplates:
+    - metadata:
+        name: payment-mongo-persistent-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: standard

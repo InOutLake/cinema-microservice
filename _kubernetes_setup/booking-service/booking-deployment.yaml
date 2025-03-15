@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-service
+spec:
+  selector:
+    matchLabels:
+      app: booking-service
+  template:
+    metadata:
+      labels:
+        app: booking-service
+    spec:
+      containers:
+      - name: booking-service
+        image: inoutlake/cinema-booking-service
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: booking-mongo-secret
+              key: username
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: booking-mongo-secret
+              key: password
+        - name: DB
+          value: "movies"
+        - name: DB_REPLS
+          value: "rs1"
+        - name: DB_SERVERS
+          value: "booking-mongo-0.booking-mongo.default.svc.cluster.local:27017 booking-mongo-1.booking-mongo.default.svc.cluster.local:27017 booking-mongo-2.booking-mongo.default.svc.cluster.local:27017"
+        ports:
+        - containerPort: 3000

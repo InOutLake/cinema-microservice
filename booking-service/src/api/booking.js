@@ -53,6 +53,14 @@ module.exports = ({repo}, app) => {
     .catch(next)
   })
 
+  app.get('/booking', (req, res, next) => {
+    repo.getAllOrders()
+        .then(orders => {
+            res.status(status.OK).json(orders)
+        })
+        .catch(next)
+  })
+
   app.get('/booking/verify/:orderId', (req, res, next) => {
     repo.getOrderById(req.params.orderId)
       .then(order => {

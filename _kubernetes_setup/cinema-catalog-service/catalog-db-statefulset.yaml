@@ -1,0 +1,44 @@
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: catalog-mongo
+  spec:
+    serviceName: catalog-mongo
+    replicas: 3
+    selector:
+      matchLabels:
+        app: catalog-mongo
+    template:
+      metadata:
+        labels:
+          app: catalog-mongo
+      spec:
+        containers:
+        - name: catalog-mongo
+          image: mongo:6.0
+          command: ["mongod", "--replSet", "rs2", "--bind_ip_all"]
+          env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: catalog-mongo-secret
+                key: username
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: catalog-mongo-secret
+                key: password
+          ports:
+          - containerPort: 27017
+          volumeMounts:
+          - name: catalog-mongo-persistent-storage
+            mountPath: /data/db
+    volumeClaimTemplates:
+    - metadata:
+        name: catalog-mongo-persistent-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: standard
