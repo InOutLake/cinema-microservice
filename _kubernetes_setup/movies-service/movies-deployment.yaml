@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movies-service
+spec:
+  selector:
+    matchLabels:
+      app: movies-service
+  template:
+    metadata:
+      labels:
+        app: movies-service
+    spec:
+      containers:
+      - name: movies-service
+        image: inoutlake/cinema-movies-service
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: movies-mongo-secret
+              key: username
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: movies-mongo-secret
+              key: password
+        - name: DB
+          value: "movies"
+        - name: DB_REPLS
+          value: "rs3"
+        - name: DB_SERVERS
+          value: "movies-mongo-0.movies-mongo.default.svc.cluster.local:27017 movies-mongo-1.movies-mongo.default.svc.cluster.local:27017 movies-mongo-2.movies-mongo.default.svc.cluster.local:27017"
+        ports:
+        - containerPort: 3000

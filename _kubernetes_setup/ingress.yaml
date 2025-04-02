@@ -1,0 +1,50 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  tls:
+    - hosts:
+        - your-domain.com
+      secretName: ingress-secret
+  rules:
+  - http:
+      paths:
+      - path: /booking(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: booking-service
+            port:
+              number: 80
+      - path: /cinemas(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: catalog-service
+            port:
+              number: 80
+      - path: /movies(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: movies-service
+            port:
+              number: 80
+      - path: /notification(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 80
+      - path: /payment(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 80
+      

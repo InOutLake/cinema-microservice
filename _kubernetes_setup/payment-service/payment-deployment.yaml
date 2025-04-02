@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+spec:
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+    spec:
+      containers:
+      - name: payment-service
+        image: inoutlake/cinema-payment-service
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: payment-mongo-secret
+              key: username
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: payment-mongo-secret
+              key: password
+        - name: DB
+          value: "payment"
+        - name: DB_REPLS
+          value: "rs3"
+        - name: DB_SERVERS
+          value: "payment-mongo-0.payment-mongo.default.svc.cluster.local:27017 payment-mongo-1.payment-mongo.default.svc.cluster.local:27017 payment-mongo-2.payment-mongo.default.svc.cluster.local:27017"
+        ports:
+        - containerPort: 3000

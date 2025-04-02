@@ -1,0 +1,44 @@
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: booking-mongo
+  spec:
+    serviceName: booking-mongo
+    replicas: 3
+    selector:
+      matchLabels:
+        app: booking-mongo
+    template:
+      metadata:
+        labels:
+          app: booking-mongo
+      spec:
+        containers:
+        - name: booking-mongo
+          image: mongo:6.0
+          command: ["mongod", "--replSet", "rs1", "--bind_ip_all"]
+          env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: booking-mongo-secret
+                key: username
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: booking-mongo-secret
+                key: password
+          ports:
+          - containerPort: 27017
+          volumeMounts:
+          - name: booking-mongo-persistent-storage
+            mountPath: /data/db
+    volumeClaimTemplates:
+    - metadata:
+        name: booking-mongo-persistent-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: standard

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-service
+spec:
+  selector:
+    matchLabels:
+      app: catalog-service
+  template:
+    metadata:
+      labels:
+        app: catalog-service
+    spec:
+      containers:
+      - name: catalog-service
+        image: inoutlake/cinema-catalog-service
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: catalog-mongo-secret
+              key: username
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: catalog-mongo-secret
+              key: password
+        - name: DB
+          value: "movies"
+        - name: DB_REPLS
+          value: "rs2"
+        - name: DB_SERVERS
+          value: "catalog-mongo-0.catalog-mongo.default.svc.cluster.local:27017 catalog-mongo-1.catalog-mongo.default.svc.cluster.local:27017 catalog-mongo-2.catalog-mongo.default.svc.cluster.local:27017"
+        ports:
+        - containerPort: 3000
